@@ -4,9 +4,6 @@
 * Set the path to the folder *;
 %let path=C:\Users\pestyl\OneDrive - SAS\github repos\Data Projects\Fitbit Competition;
 
-* Import following SAS column naming conventions *;
-options validvarname=v7;
-
 * Create a print marco to print the first five rows of a table by default *;
 %macro head(tbl,n=5);
     proc print data=&tbl(obs=&n) noobs;
@@ -30,27 +27,29 @@ options validvarname=v7;
 * Set the title options to the title color and alwyas left justify *;
 %let fmtTitle=height=&TitleSize color=&textColor justify=left;
 
+* Add current date to footnote *;
+%let footnoteDate=%sysfunc(today(),mmddyy10.);
+
 * Set the footnote options to the title color and alwyas left justify *;
 %let fmtFootnote=height=8pt color=&textColor justify=left;
 
-* Set the date *;
-%let footnoteDate=As of %sysfunc(today(),mmddyy10.);
-
 * Set the x and y axis formatting *;
 %let fmtAxes=labelattrs=(size=&AxisLabel color=&textColor)
-             valueattrs=(size=&AxisValue color=&textColor);
+            valueattrs=(size=&AxisValue color=&textColor);
     
 %let fmtXaxis=&fmtAxes;
            
 %let fmtYaxis=&fmtAxes;
 
 
-
 *************************************;
 * ACCESS DATA                       *;
 *************************************;
+* Import following SAS column naming conventions *;
+options validvarname=v7;
+
 proc import datafile="&path/fitbit.csv"
-            out=fitbit_raw(rename=('Start Date'n=Start_Date))
+            out=fitbit_raw
             dbms=csv 
             replace;
 run;
@@ -291,10 +290,10 @@ title "Winner/Loser Colors";
 ************************;
 * 1. Overall Standings *;
 ************************;
-ods graphics / width=7in;
+ods graphics / width=9in;
 
 title &fmtTitle "Overall Standings";
-footnote &fmtFootnote  "&footnoteDate, 1st Place=3pts, 2nd Place=1pts, 3rd Place=0pts";
+footnote &fmtFootnote  "As of %sysfunc(today(),mmddyy10.), 1st Place=3pts, 2nd Place=1pts, 3rd Place=0pts";
 
 proc sgplot data=overall
             noborder 
@@ -310,8 +309,8 @@ proc sgplot data=overall
         y=Person  
         location=inside 
         pad=10
-        valueattrs=(size=12pt)
-        labelattrs=(color=black weight=bold size=12pt) pad=20;
+        valueattrs=(size=12pt color=&textColor)
+        labelattrs=(color=&textColor weight=bold size=12pt) pad=20;
     yaxis &fmtYaxis display=(nolabel noticks noline);
     xaxis &fmtXaxis display=none;
 run;
@@ -323,7 +322,6 @@ ods graphics / reset;
 
 
 
-
 ****************************;
 * 2. Winner by Competition *;
 ****************************;
@@ -331,7 +329,8 @@ ods listing gpath="&path";
 ods graphics /  width=13in height=5in imagename="test" imagefmt=jpeg;
 
 title &fmtTitle "Winner by Each Competition";
-footnote &fmtFootnote  "&footnoteDate";
+footnote &fmtFootnote  "As of &footnoteDate";
+
 proc sgpanel data=fitbit_detail
              dattrmap=winner;
     panelby Start_Date / 
@@ -352,12 +351,12 @@ proc sgpanel data=fitbit_detail
         exclude=("Loser")
         noborder
         title=""
-        valueattrs=(color=&textColor size=11pt);
+        valueattrs=(color=&textColor size=11pt)
+        scale=1.5;
 run;
 title;
 
 ods graphics / reset;
-
 
 
 *******************************;
@@ -366,6 +365,7 @@ ods graphics / reset;
 ods graphics / width=9in height=5in;
 
 title &fmtTitle "Cumulative Steps by Person";
+footnote &fmtFootnote  "As of &footnoteDate";
 
 proc sgplot data=fitbit_detail
             noborder
@@ -391,6 +391,7 @@ run;
 
 title;
 footnote;
+
 ods graphics / reset;
 
 
@@ -408,7 +409,8 @@ title &fmtTitle "%upcase(&clean) Steps by Competition";
 title2 " ";
 
 proc sgpanel data=fitbit_detail
-            dattrmap=attrs noautolegend;
+            dattrmap=attrs 
+            noautolegend;
     panelby Person / 
         layout=columnlattice 
         novarname
@@ -418,12 +420,16 @@ proc sgpanel data=fitbit_detail
         headerbackcolor=white
         noheaderborder
         spacing=25
+        colheaderpos=bottom
     ;
     vbar Week / 
          response=Steps
-         attrID=myID group=Person;
+         attrID=myID 
+         group=Person
+         groupdisplay=cluster;
     colaxis &fmtYaxis label="Week" display=none;
-    rowaxis &fmtXaxis label="Steps";
+    rowaxis &fmtXaxis label="Steps"
+            values=(0 to 100000 by 20000);
     where upcase(Type)="&clean";
 
 run;
@@ -436,3 +442,87 @@ title;
 %stepsByPerson(Workweek hustle)
 
 %stepsByPerson(Weekend)
+;
+
+
+
+*******************************;
+* 5. Steps by Week            *;
+*******************************;
+ods graphics / width=10in height=5in;
+
+title &fmtTitle "Total Steps for Each Person by Week";
+footnote &fmtFootnote  "As of &footnoteDate";
+
+proc sgpanel data=fitbit_detail
+            dattrmap=attrs 
+            noautolegend;
+    panelby Person / 
+        layout=columnlattice 
+        novarname
+        nowall
+        noborder
+        headerattrs=(color=&textColor size=12pt weight=bold)
+        headerbackcolor=white
+        noheaderborder
+        spacing=25
+        colheaderpos=bottom
+    ;
+    vbar Week / 
+         response=Steps
+         attrID=myID 
+         group=Person
+         groupdisplay=cluster;
+    colaxis &fmtYaxis label="Week" display=none;
+    rowaxis &fmtXaxis label="Steps"
+            values=(0 to 140000 by 20000);
+run;
+
+
+
+
+*******************************;
+* 6. Boxplot                  *;
+*******************************;
+ods graphics / width=9in height=5in;
+
+title &fmtTitle "Boxplot..";
+footnote &fmtFootnote  "As of &footnoteDate";
+
+proc sgpanel data=fitbit_detail
+             dattrmap=attrs
+;
+    panelby Type /
+        layout=columnlattice 
+        novarname
+        nowall
+        noborder
+        headerattrs=(color=&textColor size=14pt weight=bold)
+        headerbackcolor=white
+        noheaderborder
+        colheaderpos=top
+        sort=descending
+    ;
+    vbox Steps / 
+        group=Person
+        attrID=myID
+        lineattrs=(color=black)
+        meanAttrs=(color=black symbol=Diamond)
+        medianAttrs=(color=black)
+        outlierAttrs=(symbol=circleFilled size=8pt)
+        ;
+    colaxis &fmtYaxis;
+    rowaxis &fmtXaxis;
+    keylegend / 
+        position=bottom
+        exclude=("Loser")
+        noborder
+        title=""
+        scale=1.5
+        valueattrs=(color=&textColor size=12pt);
+run;
+
+footnote;
+title;
+
+ods graphics / reset;
