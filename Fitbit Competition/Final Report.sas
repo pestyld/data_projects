@@ -25,7 +25,7 @@ title;footnote; /*Clear any previously set titles or footnotes*/
 ods _all_ close;
 
 /*Output the HTML file to this location. Name the file 'FinalReport.html'*/
-ods html5 file="FinalReport.html" path="&path";
+ods html5 file="FitbitReport.html" path="&path";
 
 /*Set up the HTML grid*/
 ods layout gridded columns=3 rows=4 column_gutter=.25in row_gutter=.25in;
