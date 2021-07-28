@@ -1,0 +1,15 @@
+proc template;
+define statgraph sgplot;
+dynamic _NEGATIVE_;
+dynamic _ticklist_;
+begingraph / collation=binary dataColors=( CX33A3FF CX768396 CX768396 );
+EntryTitle halign=left "Customers Prefer " halign=left textattrs=( color=CX33A3FF) "Serentiva" halign=left textattrs=( color=CX768396 size=16pt) " Over the " halign=left textattrs=( color=CX768396 style=italic size=16pt) "Competitor" / textattrs=( color=CX768396 size=16pt);
+EntryTitle " " / textattrs=(size=GraphLabelText:fontsize);
+EntryTitle " " / textattrs=(size=GraphLabelText:fontsize);
+layout overlay / walldisplay=none xaxisopts=(discreteOpts=(sortOrder=_InternalData)) xaxisopts=( display=( ticks tickvalues line ) TickValueAttrs=( Color=CX768396 Size=12pt Weight=bold) type=discrete discreteopts=( TickValueFitPolicy=SplitRotate sortOrder=_InternalData tickValueList=_ticklist_ ) ) y2axisopts=(labelFitPolicy=Split) yaxisopts=( display=none labelFitPolicy=Split type=auto discreteopts=( sortOrder=_InternalData ) ) x2axisopts=(type=Discrete discreteOpts=(tickValueList=_ticklist_ tickvaluefitpolicy=SplitRotate tickValueListPolicy=Union)) y2axisopts=(labelFitPolicy=Split);
+   BarChartParm X='Name'n Y='_Sum1_PctPrefer_'n / primary=true Group='Name'n DataLabelAttrs=( Color=CX4F4F4F Size=12pt Weight=bold ) Display=( Fill ) LegendLabel="PctPrefer" DataLabelType=auto NAME="VBAR";
+endlayout;
+EntryFootnote textattrs=( style=italic) "N=99" / textattrs=( color=CX768396);
+endgraph;
+end;
+run;
