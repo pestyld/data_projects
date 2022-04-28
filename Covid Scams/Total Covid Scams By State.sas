@@ -3,7 +3,7 @@
 ****************************;
 
 * Location and file name set in macro variables *;
-%let path=C:\Users\pestyl\OneDrive - SAS\github repos\Data Visualization\Covid Scams;
+%let path=&path\github repos\Data Visualization\Covid Scams;
 %let filename=Title_State_Full_Data_data.csv;
 
 * Variable names follow SAS naming rules *;
