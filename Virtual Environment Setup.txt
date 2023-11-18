@@ -1,0 +1,8 @@
+1. Open anaconda prompt
+2. conda create --name vir_env_name
+3. conda activate vir_env_name
+4. conda/pip install packages in virtual env
+
+Install jupyter
+5. conda install -c anaconda ipykernel
+6. python -m ipykernel install --user --name=firstEnv
